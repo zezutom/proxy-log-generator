@@ -1,8 +1,9 @@
 #! /usr/bin/python
 import logging
+import random
+import os
 from optparse import OptionParser
 from datetime import timedelta, datetime
-import random
 from random import randrange
 
 
@@ -63,7 +64,8 @@ def rand_auth(anonymous):
 
 
 def read_conf(filename):
-    return open('conf/%s' % filename, 'r').readlines()
+    src_dir = os.path.dirname(os.path.abspath(__file__))
+    return open('%s/conf/%s' % ('%s/..'%src_dir, filename), 'r').readlines()
 
 
 def rand_bool():
