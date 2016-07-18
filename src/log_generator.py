@@ -10,7 +10,7 @@ def generate_event(timestamp):
     logging.info('%s\t%s\t%s\t%s\t%s\t%s\t%s' % (timestamp.strftime('%Y-%m-%d %H:%M:%S'),
                                                  rand_ip(),
                                                  rand_user_agent(),
-                                                 rand_auth(),
+                                                 rand_auth(rand_bool()),
                                                  rand_url(),
                                                  rand_http_status(),
                                                  rand_res_size()))
@@ -38,7 +38,7 @@ def read_options():
 
 
 def rand_ip():
-    invalid = [10, 127, 169, 172, 192]
+    invalid = map(lambda x: str(x), (10, 127, 169, 172, 192))
     first = rand_octet()
     while first in invalid:
         first = rand_octet()
@@ -54,8 +54,8 @@ def rand_user_agent():
     return rand_item(user_agents)
 
 
-def rand_auth():
-    if not rand_bool():
+def rand_auth(anonymous):
+    if anonymous:
         return '-'
     fnames = read_conf('fnames.txt')
     lnames = read_conf('lnames.txt')
