@@ -4,10 +4,8 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install coveralls
-# run tests
-script: python src/log_generator_test.py
 
-# test coverage
-script: coverage run --source=moscowdjango,meetup manage.py test
+# run tests with coverage
+script: coverage run src/log_generator_test.py
 
 after_success: coveralls
