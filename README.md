@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/zezutom/proxy-log-generator.svg?branch=master)](https://travis-ci.org/zezutom/proxy-log-generator)
 [![Coverage Status](https://coveralls.io/repos/github/zezutom/proxy-log-generator/badge.svg)](https://coveralls.io/github/zezutom/proxy-log-generator)
 # Proxy Log Generator
-This is based on a simple Python script which generates a fake web server log. Unsurprisingly, the script comes with a bunch of configuration options allowing to control data volumes and variety. The project has been inspired by some outstanding examples, see Resources for details. 
+The app is a simple Python script which generates a fake web server log. Unsurprisingly, the script comes with a bunch of configuration options allowing to control data volumes and variety. The project has been inspired by some outstanding examples, see Resources for details. 
 
 ## Example Output
 ```
