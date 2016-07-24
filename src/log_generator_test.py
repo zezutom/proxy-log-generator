@@ -1,6 +1,8 @@
-import unittest
-import log_generator
 import re
+import unittest
+from datetime import timedelta
+
+import log_generator
 
 
 class LogGeneratorTestCase(unittest.TestCase):
@@ -14,10 +16,39 @@ class LogGeneratorTestCase(unittest.TestCase):
         self.assertEquals("logfile.log", options.logfile, 'Invalid default log file location \'%s\'' % options.logfile)
 
         # A default time range is 2 days
-        self.assertEquals(48, options.duration, 'Invalid default time range: %d' % options.duration)
+        self.assertEquals('2d', options.duration, 'Invalid default time range: %s' % options.duration)
 
         # There are new log events every 5 minutes
         self.assertEquals(5, options.increment, 'Invalid default increment: %d' % options.increment)
+
+    def test_parse_duration(self):
+        days = timedelta(days=10)
+        self.verify_time_options(days, self.parse_time_options('10d'))
+        self.verify_time_options(days, self.parse_time_options('10D'))
+
+        hours = timedelta(hours=3)
+        self.verify_time_options(hours, self.parse_time_options('3h'))
+        self.verify_time_options(hours, self.parse_time_options('3H'))
+
+        minutes = timedelta(minutes=125)
+        self.verify_time_options(minutes, self.parse_time_options('125m'))
+        self.verify_time_options(minutes, self.parse_time_options('125M'))
+
+        seconds = timedelta(seconds=59)
+        self.verify_time_options(seconds, self.parse_time_options('59s'))
+        self.verify_time_options(seconds, self.parse_time_options('59S'))
+
+        self.verify_time_options(timedelta(days=2), self.parse_time_options('invalid entry'))
+
+    def verify_time_options(self, expected, actual):
+        self.assertEquals(expected, actual, 'Wrong time delta %s' % actual)
+
+    @staticmethod
+    def parse_time_options(duration_expr):
+        options = log_generator.read_options()
+        options.duration = duration_expr
+        time_delta = log_generator.parse_duration(options)
+        return time_delta
 
     def test_rand_ip(self):
         ip = log_generator.rand_ip()

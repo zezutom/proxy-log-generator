@@ -2,6 +2,7 @@
 import logging
 import random
 import os
+import re
 from optparse import OptionParser
 from datetime import timedelta, datetime
 from random import randrange
@@ -20,18 +21,34 @@ def generate_event(timestamp):
 def generate_log(options):
     logging.basicConfig(filename=options.logfile, format='%(message)s', level=logging.DEBUG)
     current_time = datetime.now()
-    timestamp = current_time - timedelta(hours=options.duration)
+    timestamp = current_time - parse_duration(options)
     while current_time > timestamp:
         generate_event(timestamp)
         timestamp += timedelta(minutes=options.increment, seconds=randrange(0, 59))
+
+
+def parse_duration(options):
+    match = re.match(r'(\d+)(d|h|m|s)', options.duration, re.IGNORECASE)
+    if match:
+        duration = int(match.group(1))
+        return {
+            'd': timedelta(days=duration),
+            'h': timedelta(hours=duration),
+            'm': timedelta(minutes=duration),
+            's': timedelta(seconds=duration)
+        }[match.group(2).lower()]
+    else:
+        logging.error('Invalid duration: \'%s\' using default (2 days)' % options.duration)
+        return timedelta(days=2)
 
 
 def read_options():
     parser = OptionParser()
     parser.add_option('-f', '--file', dest='logfile', help='Path to a log file. Default=logfile.log',
                       default='logfile.log', type='string')
-    parser.add_option('-t', '--time', dest='duration', help='Generate logs for X Hours. Default=48H ( 2 days)',
-                      default='48', type='int')
+    parser.add_option('-t', '--time', dest='duration', help='Generate logs for X days (d), hours (h), '
+                                                            'minutes (m) or seconds (s). Default=2d ( 2 days)',
+                      default='2d', type='string')
     parser.add_option('-i', '--increment', dest='increment', help='Generate logs every X minutes. Default=5min',
                       default='5', type='int')
     (options, args) = parser.parse_args()
@@ -65,7 +82,7 @@ def rand_auth(anonymous):
 
 def read_conf(filename):
     src_dir = os.path.dirname(os.path.abspath(__file__))
-    return open('%s/conf/%s' % ('%s/..'%src_dir, filename), 'r').readlines()
+    return open('%s/conf/%s' % ('%s/..' % src_dir, filename), 'r').readlines()
 
 
 def rand_bool():
