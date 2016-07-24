@@ -8,23 +8,51 @@ from datetime import timedelta, datetime
 from random import randrange
 
 
-def generate_event(timestamp):
-    logging.info('%s\t%s\t%s\t%s\t%s\t%s\t%s' % (timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-                                                 rand_ip(),
-                                                 rand_user_agent(),
-                                                 rand_auth(rand_bool()),
-                                                 rand_url(),
-                                                 rand_http_status(),
-                                                 rand_res_size()))
+def generate_event(timestamp, volume):
+    random_volume = randrange(1, volume)
+    i = 0
+    while i < random_volume:
+        logging.info('%s\t%s\t%s\t%s\t%s\t%s\t%s' % (timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                                                     rand_ip(),
+                                                     rand_user_agent(),
+                                                     rand_auth(rand_bool()),
+                                                     rand_url(),
+                                                     rand_http_status(),
+                                                     rand_res_size()))
+        i += 1
 
 
 def generate_log(options):
     logging.basicConfig(filename=options.logfile, format='%(message)s', level=logging.DEBUG)
     current_time = datetime.now()
     timestamp = current_time - parse_duration(options)
+
+    # DDoS?
+    if options.ddos:
+        (volume, start, duration) = parse_ddos(current_time, options)
+        ddos_timestamp = current_time - duration
+
+        # Create a peak in traffic volume
+        while current_time > ddos_timestamp:
+            generate_event(ddos_timestamp, volume)
+            ddos_timestamp += parse_increment(options)
+
+        # Generate a normal load for the remaining time slot, if any
+        generate_events(ddos_timestamp, timestamp, options)
+    else:
+        # Generate a normal load
+        generate_events(current_time, timestamp, options)
+
+
+def generate_events(current_time, timestamp, options):
     while current_time > timestamp:
-        generate_event(timestamp)
+        generate_event(timestamp, options.volume)
         timestamp += parse_increment(options)
+
+
+def parse_ddos(current_time, options):
+    # TODO parse options.ddos_conf
+    return 10000, timedelta(minutes=10), timedelta(minutes=2)
 
 
 def parse_duration(options):
@@ -61,11 +89,25 @@ def read_options():
     parser.add_option('-f', '--file', dest='logfile', help='Path to a log file. Default=logfile.log',
                       default='logfile.log', type='string')
     parser.add_option('-t', '--time', dest='duration', help='Generate logs for X days (d), hours (h), '
-                                                            'minutes (m) or seconds (s). Default=2d (2 days)',
-                      default='2d', type='string')
+                                                            'minutes (m) or seconds (s). Default=1d (1 day)',
+                      default='1d', type='string')
     parser.add_option('-i', '--increment', dest='increment', help='Generate logs every X minutes (m), seconds (s) '
                                                                   'or milliseconds (ms). Default=5m (5 minutes)',
                       default='5m', type='string')
+    parser.add_option('-v', '--volume', dest='volume', help='How many concurrent connections are considered'
+                                                            ' a legitimate usual load. Default=100',
+                      default=100, type='int')
+    parser.add_option('-d', '--ddos', dest='ddos', help='Trigger a DDoS attack? Default=false',
+                      choices=[True, False], default=False, type='choice')
+    parser.add_option('-c', '--ddos-conf', dest='ddos_conf', help='Defines a DDoS attack in terms of severity, timing '
+                                                        'and duration. By default, a DDoS is defined '
+                                                        'as \'1000 4h 10m\'. This means that a 10x more events '
+                                                        'than the usual load (see -c) are generated after 4 hours '
+                                                        'into the day and the attack is carried for 10 minutes. '
+                                                        'Feel free to override this definition. Supported time units '
+                                                        'are days (d), hours(h), minutes (m) and seconds (s).',
+                      default='1000 4h 10m', type='string')
+
     (options, args) = parser.parse_args()
     return options
 

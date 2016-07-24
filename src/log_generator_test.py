@@ -15,11 +15,18 @@ class LogGeneratorTestCase(unittest.TestCase):
         # A default path to the log file
         self.assertEquals("logfile.log", options.logfile, 'Invalid default log file location \'%s\'' % options.logfile)
 
-        # A default time range is 2 days
-        self.assertEquals('2d', options.duration, 'Invalid default time range: %s' % options.duration)
+        # A default time range is 1 day
+        self.assertEquals('1d', options.duration, 'Invalid default time range: %s' % options.duration)
 
         # There are new log events every 5 minutes
         self.assertEquals('5m', options.increment, 'Invalid default increment: %s' % options.increment)
+
+        # DDoS is inactive
+        self.assertFalse(options.ddos, 'DDoS is supposed to be inactive by default')
+
+        # DDoS, once it is activated, should trigger 4 hours into the day, generate 10x the usual load
+        # and last for 2 minutes.
+        self.assertEquals('1000 4h 10m', options.ddos_conf, 'Invalid default DDoS conf: \'%s\'' % options.ddos_conf)
 
     def test_parse_duration_days(self):
         days = timedelta(days=10)
