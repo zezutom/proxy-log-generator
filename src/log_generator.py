@@ -24,7 +24,7 @@ def generate_log(options):
     timestamp = current_time - parse_duration(options)
     while current_time > timestamp:
         generate_event(timestamp)
-        timestamp += timedelta(minutes=options.increment, seconds=randrange(0, 59))
+        timestamp += parse_increment(options)
 
 
 def parse_duration(options):
@@ -42,15 +42,30 @@ def parse_duration(options):
         return timedelta(days=2)
 
 
+def parse_increment(options):
+    match = re.match(r'(\d+)(ms|m|s)', options.increment, re.IGNORECASE)
+    if match:
+        increment = int(match.group(1))
+        return {
+            'm': timedelta(minutes=increment, seconds=randrange(0, 59)),
+            's': timedelta(seconds=increment, milliseconds=randrange(0, 1000)),
+            'ms': timedelta(milliseconds=increment, microseconds=randrange(0, 1000))
+        }[match.group(2).lower()]
+    else:
+        logging.error('Invalid increment: \'%s\' using default (5 minutes)' % options.increment)
+        return timedelta(minutes=5, seconds=randrange(0, 59))
+
+
 def read_options():
     parser = OptionParser()
     parser.add_option('-f', '--file', dest='logfile', help='Path to a log file. Default=logfile.log',
                       default='logfile.log', type='string')
     parser.add_option('-t', '--time', dest='duration', help='Generate logs for X days (d), hours (h), '
-                                                            'minutes (m) or seconds (s). Default=2d ( 2 days)',
+                                                            'minutes (m) or seconds (s). Default=2d (2 days)',
                       default='2d', type='string')
-    parser.add_option('-i', '--increment', dest='increment', help='Generate logs every X minutes. Default=5min',
-                      default='5', type='int')
+    parser.add_option('-i', '--increment', dest='increment', help='Generate logs every X minutes (m), seconds (s) '
+                                                                  'or milliseconds (ms). Default=5m (5 minutes)',
+                      default='5m', type='string')
     (options, args) = parser.parse_args()
     return options
 
