@@ -51,6 +51,52 @@ class LogGeneratorTestCase(unittest.TestCase):
     def test_parse_duration_invalid_entry(self):
         self.verify_time_options(timedelta(days=2), self.parse_duration_options('invalid entry'))
 
+    def test_parse_ddos_conf_default(self):
+        expected = (1000, timedelta(hours=4), timedelta(minutes=10))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('1000 4h 10m'))
+
+    def test_parse_ddos_conf_case_insensitive(self):
+        expected = (1000, timedelta(hours=4), timedelta(minutes=10))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('1000 4H 10M'))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('1000 4h 10M'))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('1000 4H 10m'))
+
+    def test_parse_ddos_conf_hours_only(self):
+        expected = (100000, timedelta(hours=5), timedelta(hours=7))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('100000 5h 7h'))
+
+    def test_parse_ddos_conf_hours_minutes(self):
+        expected = (100, timedelta(hours=1), timedelta(minutes=15))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('100 1h 15m'))
+
+    def test_parse_ddos_conf_hours_seconds(self):
+        expected = (1500, timedelta(hours=1), timedelta(seconds=600))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('1500 1h 600s'))
+
+    def test_parse_ddos_conf_minutes_only(self):
+        expected = (120, timedelta(minutes=30), timedelta(minutes=5))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('120 30m 5m'))
+
+    def test_parse_ddos_conf_minutes_hours(self):
+        expected = (2000, timedelta(minutes=10), timedelta(hours=3))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('2000 10m 3h'))
+
+    def test_parse_ddos_conf_minutes_seconds(self):
+        expected = (10000, timedelta(minutes=3), timedelta(seconds=180))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('10000 3m 180s'))
+
+    def test_parse_ddos_conf_seconds_only(self):
+        expected = (1000000, timedelta(seconds=30), timedelta(seconds=25))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('1000000 30s 25s'))
+
+    def test_parse_ddos_conf_seconds_hours(self):
+        expected = (1300, timedelta(seconds=10), timedelta(hours=15))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('1300 10s 15h'))
+
+    def test_parse_ddos_conf_seconds_minutes(self):
+        expected = (3000, timedelta(seconds=2), timedelta(minutes=15))
+        self.verify_ddos_options(expected, self.parse_ddos_conf_options('3000 2s 15m'))
+
     def test_parse_increment_minutes(self):
         minutes_min = timedelta(minutes=15, seconds=0)
         minutes_max = timedelta(minutes=15, seconds=59)
@@ -77,19 +123,26 @@ class LogGeneratorTestCase(unittest.TestCase):
     def verify_time_range_options(self, expected_min, expected_max, actual):
         self.assertTrue(expected_min <= actual <= expected_max, 'Wrong time delta %s' % actual)
 
+    def verify_ddos_options(self, expected, actual):
+        self.assertEquals(expected, actual, 'Wrong DDoS conf: \'%s\'' % ','.join(map(lambda x: str(x), actual)))
+
     @staticmethod
     def parse_duration_options(expression):
         options = log_generator.read_options()
         options.duration = expression
-        time_delta = log_generator.parse_duration(options)
-        return time_delta
+        return log_generator.parse_duration(options)
 
     @staticmethod
     def parse_increment_options(expression):
         options = log_generator.read_options()
         options.increment = expression
-        time_delta = log_generator.parse_increment(options)
-        return time_delta
+        return log_generator.parse_increment(options)
+
+    @staticmethod
+    def parse_ddos_conf_options(expression):
+        options = log_generator.read_options()
+        options.ddos_conf = expression
+        return log_generator.parse_ddos_conf(options)
 
     def test_rand_ip(self):
         ip = log_generator.rand_ip()

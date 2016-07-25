@@ -29,11 +29,12 @@ def generate_log(options):
 
     # DDoS?
     if options.ddos:
-        (volume, start, duration) = parse_ddos(current_time, options)
-        ddos_timestamp = current_time - duration
+        (volume, start, duration) = parse_ddos_conf(options)
+        ddos_timestamp = timestamp + start
+        current_time = start + duration
 
         # Create a peak in traffic volume
-        while current_time > ddos_timestamp:
+        while current_time > start:
             generate_event(ddos_timestamp, volume)
             ddos_timestamp += parse_increment(options)
 
@@ -50,9 +51,29 @@ def generate_events(current_time, timestamp, options):
         timestamp += parse_increment(options)
 
 
-def parse_ddos(current_time, options):
-    # TODO parse options.ddos_conf
-    return 10000, timedelta(minutes=10), timedelta(minutes=2)
+def parse_ddos_conf(options):
+    match = re.match(r'(\d+) (\d+)(h|m|s) (\d+)(h|m|s)', options.ddos_conf, re.IGNORECASE)
+    if match:
+        volume = int(match.group(1))
+
+        start = int(match.group(2))
+        start_time = {
+            'h': timedelta(hours=start),
+            'm': timedelta(minutes=start),
+            's': timedelta(seconds=start)
+        }[match.group(3).lower()]
+
+        duration = int(match.group(4))
+        duration_time = {
+            'h': timedelta(hours=duration),
+            'm': timedelta(minutes=duration),
+            's': timedelta(seconds=duration)
+        }[match.group(5).lower()]
+        return volume, start_time, duration_time
+    else:
+        logging.error('Invalid duration: \'%s\' using default '
+                      '(1000 concurrent connections, starts in 4 hours, takes 10 minutes)' % options.ddos_conf)
+        return 10000, timedelta(hours=4), timedelta(minutes=10)
 
 
 def parse_duration(options):
@@ -102,10 +123,10 @@ def read_options():
     parser.add_option('-c', '--ddos-conf', dest='ddos_conf', help='Defines a DDoS attack in terms of severity, timing '
                                                         'and duration. By default, a DDoS is defined '
                                                         'as \'1000 4h 10m\'. This means that a 10x more events '
-                                                        'than the usual load (see -c) are generated after 4 hours '
+                                                        'than the usual load (see -v) are generated after 4 hours '
                                                         'into the day and the attack is carried for 10 minutes. '
                                                         'Feel free to override this definition. Supported time units '
-                                                        'are days (d), hours(h), minutes (m) and seconds (s).',
+                                                        'are hours(h), minutes (m) and seconds (s).',
                       default='1000 4h 10m', type='string')
 
     (options, args) = parser.parse_args()
