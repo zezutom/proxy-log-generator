@@ -33,7 +33,7 @@ python src/log_generator.py --file [path to a log file]
 ### Normal traffic for a specified period of time
 _-t_ or _--time_, 1 day by default
 
-Please note, to make the output more realistic times are approximated, i.e. they center around the requested time period or frequency. However, no exact match is guaranteed. In fact, it is not even desirable.
+Please note, to make the output more realistic times are approximate, i.e. they center around the requested time period or frequency. However, no exact match is guaranteed. In fact, it is not even desirable.
 ```
 python src/log_generator.py --time [number of days (d), hours (h), minutes (m), seconds (s) or milliseconds (ms)]
 ```
