@@ -32,7 +32,7 @@ python src/log_generator.py --file [path to a log file]
 
 ### Normal traffic for a specified period of time
 ```
-python src/log_generator.py --time [number of days (d), hours (h)]
+python src/log_generator.py --time [number of days (d), hours (h), minutes (m), seconds (s) or milliseconds (ms)]
 ```
 Examples:
 ```
@@ -44,6 +44,12 @@ python src/log_generator.py --time 5h
 
 # half an hour
 python src/log_generator.py --time 30m
+
+# 15 seconds
+python src/log_generator.py --time 15s
+
+# 100 milliseconds
+python src/log_generator.py --time 100ms
 ```
 
 ## Resources
