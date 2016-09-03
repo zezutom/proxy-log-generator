@@ -25,12 +25,15 @@ python src/log_generator.py
 ### Normal daily traffic
 No additional arguments needed. The output file will be saved in the current working directory as _logfile.log_.
 
-To override the file name and location:
+To override the file name and location: _-f_ or _--file_
 ```
 python src/log_generator.py --file [path to a log file]
 ```
 
 ### Normal traffic for a specified period of time
+_-t_ or _--time_, 1 day by default
+
+Please note, to make the output more realistic times are approximated, i.e. they center around the requested time period or frequency. However, no exact match is guaranteed. In fact, it is not even desirable.
 ```
 python src/log_generator.py --time [number of days (d), hours (h), minutes (m), seconds (s) or milliseconds (ms)]
 ```
@@ -50,6 +53,23 @@ python src/log_generator.py --time 15s
 
 # 100 milliseconds
 python src/log_generator.py --time 100ms
+```
+
+### Define frequency of inbound events
+_-i_ or _--increment_, every 5 minutes by default
+```
+python src/log_generator.py --increment [every X minutes (m), seconds (s) or milliseconds (ms)]
+```
+Examples:
+```
+# A new request every minute
+python src/log_generator.py --increment 1m
+
+# A new request every 10 seconds
+python src/log_generator.py --increment 10s
+
+# About 10 requests per second
+python src/log_generator.py --increment 100ms
 ```
 
 ## Resources
