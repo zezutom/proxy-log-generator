@@ -19,10 +19,32 @@ The app is a simple Python script which generates a fake web server log. Unsurpr
 See [the full log file](examples/logfile.log).
 
 ## Usage
-TODO (coming soon)
+```
+python src/log_generator.py
+```
+### Normal daily traffic
+No additional arguments needed. The output file will be saved in the current working directory as _logfile.log_.
 
-## Configuration
-TODO (coming soon)
+To override the file name and location:
+```
+python src/log_generator.py --file [path to a log file]
+```
+
+### Normal traffic for a specified period of time
+```
+python src/log_generator.py --time [number of days (d), hours (h)]
+```
+Examples:
+```
+# 2 days
+python src/log_generator.py --time 2d
+
+# 5 hours
+python src/log_generator.py --time 5h
+
+# half an hour
+python src/log_generator.py --time 30m
+```
 
 ## Resources
 * [Hortonworks' Hadoop Tutorials, Tutorial 12: Refining and Visualizing Server Log Data](https://github.com/hortonworks/hadoop-tutorials/blob/master/Sandbox/T12_Refining_and_Visualizing_Server_Log_Data.md)
