@@ -8,22 +8,46 @@ from datetime import timedelta, datetime
 from random import randrange
 
 
+def configure_logging(logfile):
+    # Enable fine grained logging
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    # Log message format (don't print the level as it is all the same for each of the handlers)
+    formatter = logging.Formatter("%(message)s")
+
+    # Console logs: info level
+    add_log_handler(logger, logging.StreamHandler(), logging.INFO, formatter)
+
+    # Error logs
+    add_log_handler(logger, logging.FileHandler("error.log"), logging.ERROR, formatter)
+
+    # Application log: debug level
+    add_log_handler(logger, logging.FileHandler(logfile), logging.DEBUG, formatter)
+
+
+def add_log_handler(logger, handler, level, formatter):
+    handler.setLevel(level)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+
 def generate_event(timestamp, volume):
     random_volume = randrange(1, volume)
     i = 0
     while i < random_volume:
-        logging.info('%s\t%s\t%s\t%s\t%s\t%s\t%s' % (timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-                                                     rand_ip(),
-                                                     rand_user_agent(),
-                                                     rand_auth(rand_bool()),
-                                                     rand_url(),
-                                                     rand_http_status(),
-                                                     rand_res_size()))
+        logging.debug('%s\t%s\t%s\t%s\t%s\t%s\t%s' % (timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                                                      rand_ip(),
+                                                      rand_user_agent(),
+                                                      rand_auth(rand_bool()),
+                                                      rand_url(),
+                                                      rand_http_status(),
+                                                      rand_res_size()))
         i += 1
 
 
 def generate_log(options):
-    logging.basicConfig(filename=options.logfile, format='%(message)s', level=logging.DEBUG)
+    configure_logging(options.logfile)
     current_time = datetime.now()
     timestamp = current_time - parse_duration(options)
 
@@ -32,6 +56,8 @@ def generate_log(options):
         (volume, start, duration) = parse_ddos_conf(options)
         ddos_timestamp = timestamp + start
         current_time = start + duration
+
+        logging.info('Enabling DDOS: volume = %s | start = %s | duration = %s' % (volume, start, duration))
 
         # Create a peak in traffic volume
         while current_time > start:
@@ -42,7 +68,14 @@ def generate_log(options):
         generate_events(ddos_timestamp, timestamp, options)
     else:
         # Generate a normal load
+        logging.info('Creating a normal load: from %s to %s' %
+                     (timestamp_to_string(timestamp),
+                      timestamp_to_string(current_time)))
         generate_events(current_time, timestamp, options)
+
+
+def timestamp_to_string(timestamp):
+    return timestamp.strftime('%Y-%m-%d %H:%M:%S')
 
 
 def generate_events(current_time, timestamp, options):
@@ -121,12 +154,13 @@ def read_options():
     parser.add_option('-d', '--ddos', dest='ddos', help='Trigger a DDoS attack? Default=false',
                       choices=[True, False], default=False, type='choice')
     parser.add_option('-c', '--ddos-conf', dest='ddos_conf', help='Defines a DDoS attack in terms of severity, timing '
-                                                        'and duration. By default, a DDoS is defined '
-                                                        'as \'1000 4h 10m\'. This means that a 10x more events '
-                                                        'than the usual load (see -v) are generated after 4 hours '
-                                                        'into the day and the attack is carried for 10 minutes. '
-                                                        'Feel free to override this definition. Supported time units '
-                                                        'are hours(h), minutes (m) and seconds (s).',
+                                                                  'and duration. By default, a DDoS is defined '
+                                                                  'as \'1000 4h 10m\'. This means that a 10x more '
+                                                                  'events than the usual load (see -v) are generated '
+                                                                  'after 4 hours into the day and the attack is '
+                                                                  'carried for 10 minutes. Feel free to override '
+                                                                  'this definition. Supported time units are hours(h), '
+                                                                  'minutes (m) and seconds (s).',
                       default='1000 4h 10m', type='string')
 
     (options, args) = parser.parse_args()
