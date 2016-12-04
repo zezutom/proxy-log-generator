@@ -3,7 +3,8 @@ import logging
 import random
 import os
 import re
-from optparse import OptionParser
+import time
+from argparse import ArgumentParser
 from datetime import timedelta, datetime
 from random import randrange
 
@@ -47,7 +48,7 @@ def generate_event(timestamp, volume):
 
 
 def generate_log(options):
-    configure_logging(options.logfile)
+    configure_logging(options.file)
     current_time = datetime.now()
     timestamp = current_time - parse_duration(options)
 
@@ -110,7 +111,7 @@ def parse_ddos_conf(options):
 
 
 def parse_duration(options):
-    match = re.match(r'(\d+)(d|h|m|s)', options.duration, re.IGNORECASE)
+    match = re.match(r'(\d+)(d|h|m|s)', options.time, re.IGNORECASE)
     if match:
         duration = int(match.group(1))
         return {
@@ -120,7 +121,7 @@ def parse_duration(options):
             's': timedelta(seconds=duration)
         }[match.group(2).lower()]
     else:
-        logging.error('Invalid duration: \'%s\' using default (2 days)' % options.duration)
+        logging.error('Invalid duration: \'%s\' using default (2 days)' % options.time)
         return timedelta(days=2)
 
 
@@ -138,33 +139,30 @@ def parse_increment(options):
         return timedelta(minutes=5, seconds=randrange(0, 59))
 
 
-def read_options():
-    parser = OptionParser()
-    parser.add_option('-f', '--file', dest='logfile', help='Path to a log file. Default=logfile.log',
-                      default='logfile.log', type='string')
-    parser.add_option('-t', '--time', dest='duration', help='Generate logs for X days (d), hours (h), '
-                                                            'minutes (m) or seconds (s). Default=1d (1 day)',
-                      default='1d', type='string')
-    parser.add_option('-i', '--increment', dest='increment', help='Generate logs every X minutes (m), seconds (s) '
-                                                                  'or milliseconds (ms). Default=5m (5 minutes)',
-                      default='5m', type='string')
-    parser.add_option('-v', '--volume', dest='volume', help='How many concurrent connections are considered'
+def read_args():
+    parser = ArgumentParser(description='Process user input')
+    parser.add_argument('-s', '--stream', help='Stream inbound events at ms frequency. Default=200ms', type=int, default=200)
+    parser.add_argument('-f', '--file', help='Path to a log file. Default=logfile.log', default='logfile.log')
+    parser.add_argument('-t', '--time', help='Generate logs for X days (d), hours (h), '
+                                                            'minutes (m) or seconds (s). Default=1d (1 day)', default='1d')
+    parser.add_argument('-i', '--increment', help='Generate logs every X minutes (m), seconds (s) '
+                                                                  'or milliseconds (ms). Default=5m (5 minutes)', default='5m')
+    parser.add_argument('-v', '--volume', help='How many concurrent connections are considered'
                                                             ' a legitimate usual load. Default=100',
-                      default=100, type='int')
-    parser.add_option('-d', '--ddos', dest='ddos', help='Trigger a DDoS attack? Default=false',
-                      choices=[True, False], default=False, type='choice')
-    parser.add_option('-c', '--ddos-conf', dest='ddos_conf', help='Defines a DDoS attack in terms of severity, timing '
+                        type=int, default=100)
+    parser.add_argument('-d', '--ddos', help='Trigger a DDoS attack? Default=false',
+                      action='store_true', default=False)
+    parser.add_argument('-c', '--ddos_conf', help='Defines a DDoS attack in terms of severity, timing '
                                                                   'and duration. By default, a DDoS is defined '
                                                                   'as \'1000 4h 10m\'. This means that a 10x more '
                                                                   'events than the usual load (see -v) are generated '
                                                                   'after 4 hours into the day and the attack is '
                                                                   'carried for 10 minutes. Feel free to override '
                                                                   'this definition. Supported time units are hours(h), '
-                                                                  'minutes (m) and seconds (s).',
-                      default='1000 4h 10m', type='string')
+                                                                  'minutes (m) and seconds (s).', default='1000 4h 10m')
 
-    (options, args) = parser.parse_args()
-    return options
+    args = parser.parse_args()
+    return args
 
 
 def rand_ip():
@@ -233,7 +231,32 @@ def rand_item(custom_list):
 
 
 def main():
-    generate_log(options=read_options())
+    options = read_args()
+    if options.stream:
+        # Enable fine grained logging
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+
+        # Log message format (don't print the level as it is all the same for each of the handlers)
+        formatter = logging.Formatter("%(message)s")
+
+        # Console logs: info level
+        add_log_handler(logger, logging.StreamHandler(), logging.DEBUG, formatter)
+
+        # Resolve event delay
+        delay = options.stream / 1000.0
+
+        # Generate events
+        while True:
+            try:
+                current_time = datetime.now()
+                generate_event(current_time, 2)
+                time.sleep(delay)
+            except KeyboardInterrupt:
+                print 'Terminating..'
+                break
+    else:
+        generate_log(options=read_args())
 
 
 if __name__ == '__main__':
