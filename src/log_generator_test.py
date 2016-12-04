@@ -1,6 +1,6 @@
 import re
 import unittest
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import log_generator
 
@@ -33,26 +33,26 @@ class LogGeneratorTestCase(unittest.TestCase):
 
     def test_parse_duration_days(self):
         days = timedelta(days=10)
-        self.verify_time(days, self.parse_duration('10d'))
-        self.verify_time(days, self.parse_duration('10D'))
+        self.verify_time(days, parse_duration('10d'))
+        self.verify_time(days, parse_duration('10D'))
 
     def test_parse_duration_hours(self):
         hours = timedelta(hours=3)
-        self.verify_time(hours, self.parse_duration('3h'))
-        self.verify_time(hours, self.parse_duration('3H'))
+        self.verify_time(hours, parse_duration('3h'))
+        self.verify_time(hours, parse_duration('3H'))
 
     def test_parse_duration_minutes(self):
         minutes = timedelta(minutes=125)
-        self.verify_time(minutes, self.parse_duration('125m'))
-        self.verify_time(minutes, self.parse_duration('125M'))
+        self.verify_time(minutes, parse_duration('125m'))
+        self.verify_time(minutes, parse_duration('125M'))
 
     def test_parse_duration_seconds(self):
         seconds = timedelta(seconds=59)
-        self.verify_time(seconds, self.parse_duration('59s'))
-        self.verify_time(seconds, self.parse_duration('59S'))
+        self.verify_time(seconds, parse_duration('59s'))
+        self.verify_time(seconds, parse_duration('59S'))
 
     def test_parse_duration_invalid_entry(self):
-        self.verify_time(timedelta(days=2), self.parse_duration('invalid entry'))
+        self.verify_time(timedelta(days=2), parse_duration('invalid entry'))
 
     def test_parse_ddos_conf_default(self):
         expected = (1000, timedelta(hours=4), timedelta(minutes=10))
@@ -129,13 +129,6 @@ class LogGeneratorTestCase(unittest.TestCase):
     def verify_ddos(self, expected, actual):
         self.assertEquals(expected, actual, 'Wrong DDoS conf: \'%s\'' % ','.join(map(lambda x: str(x), actual)))
 
-
-    @staticmethod
-    def parse_duration(expression):
-        args = log_generator.read_args()
-        args.time = expression
-        return log_generator.parse_duration(args)
-
     @staticmethod
     def parse_increment(expression):
         args = log_generator.read_args()
@@ -206,6 +199,20 @@ class LogGeneratorTestCase(unittest.TestCase):
     def test_rand_res_size(self):
         size = log_generator.rand_res_size()
         self.assertTrue(1 <= size <= 5000000, 'Invalid resource size: %d' % size)
+
+    def test_generate_event(self):
+        timestamp = datetime.now()
+        event = log_generator.generate_event(timestamp)
+        self.assertIsNotNone(event, 'A valid event is expected')
+        self.assertEquals(timestamp.strftime('%Y-%m-%d %H:%M:%S'), event['timestamp'])
+        for p in ['ip', 'user_agent', 'authenticated', 'url', 'res_status', 'res_size']:
+            self.assertIsNotNone(event[p])
+
+
+def parse_duration(expression):
+    args = log_generator.read_args()
+    args.time = expression
+    return log_generator.parse_duration(args)
 
 
 if __name__ == '__main__':
