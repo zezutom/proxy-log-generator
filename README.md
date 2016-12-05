@@ -19,9 +19,18 @@ The app is a simple Python script which generates a fake web server log. Unsurpr
 See [the full log file](examples/logfile.log).
 
 ## Usage
+### Streaming
+Continuously generate logs into either a console or a specified remote endpoint. 
+
+Stream logs to a console at a rate of 100 ms a message.
 ```
-python src/log_generator.py
+python src/log_generator.py --stream 100
 ```
+Stream logs to a HTTP server (_protocol://host:port/endpoint_) at a rate of 100 ms a message.
+```
+python src/log_generator.py --stream 100 --url http://localhost:8081/contentListener
+```
+
 ### Normal daily traffic
 No additional arguments needed. The output file will be saved in the current working directory as _logfile.log_.
 
