@@ -26,7 +26,7 @@ Stream logs to a console at a rate of 100 ms a message.
 ```
 python src/log_generator.py --stream 100
 ```
-Stream logs to a HTTP server (_protocol://host:port/endpoint_) at a rate of 100 ms a message.
+Stream logs to a HTTP server (_http(s)://host:port/endpoint_) at a rate of 100 ms a message.
 ```
 python src/log_generator.py --stream 100 --url http://localhost:8081/contentListener
 ```
