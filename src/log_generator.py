@@ -42,7 +42,7 @@ def generate_event(timestamp, args=None):
         return post_event(timestamp, args)
 
     # Generate a random event
-    event = {
+    return {
         'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
         'ip': rand_ip(),
         'user_agent': rand_user_agent(),
@@ -52,7 +52,12 @@ def generate_event(timestamp, args=None):
         'res_size': rand_res_size()
     }
 
-    # log it
+
+def output_event(timestamp, args):
+    log_event(generate_event(timestamp, args))
+
+
+def log_event(event):
     logging.debug('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}'.format(event['timestamp'],
                                                              event['ip'],
                                                              event['user_agent'],
@@ -60,14 +65,13 @@ def generate_event(timestamp, args=None):
                                                              event['url'],
                                                              event['res_status'],
                                                              event['res_size']))
-    return event
 
 
 def generate_events(timestamp, volume):
     random_volume = randrange(1, volume)
     i = 0
     while i < random_volume:
-        generate_event(timestamp)
+        log_event(generate_event(timestamp))
         i += 1
 
 
@@ -161,6 +165,8 @@ def read_args():
     parser = ArgumentParser(description='Process user input')
     parser.add_argument('-s', '--stream', help='Stream inbound events at ms frequency. Default=200ms', type=int,
                         default=200)
+    parser.add_argument('-b', '--batch_size', help='How many events to stream at once. Applies when streaming is on.',
+                        type=int, default=1)
     parser.add_argument('-u', '--url', help='URL of a remote endpoint the generated events are streamed to.')
     parser.add_argument('-f', '--file', help='Path to a log file. Default=logfile.log', default='logfile.log')
     parser.add_argument('-t', '--time', help='Generate logs for X days (d), hours (h), '
@@ -281,13 +287,14 @@ def main():
     delay = args.stream / 1000.0
 
     # Resolve event handler
-    event_handler = post_event if args.url else generate_event
+    event_handler = post_event if args.url else output_event
 
     # Generate events
     err_count = 0
     while True:
         try:
-            send_event(event_handler, datetime.now(), args)
+            for i in range(args.batch_size):
+                send_event(event_handler, datetime.now(), args)
             time.sleep(delay)
         except KeyboardInterrupt:
             print 'Terminating..'
