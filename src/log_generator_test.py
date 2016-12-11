@@ -1,3 +1,4 @@
+#! /usr/bin/python
 import re
 import unittest
 from datetime import timedelta, datetime
@@ -194,7 +195,7 @@ class LogGeneratorTestCase(unittest.TestCase):
 
     def test_rand_http_status(self):
         status = log_generator.rand_http_status()
-        self.assertTrue(status in map(lambda x: str(x), (200, 302, 404, 500)), 'Invalid HTTP status: %s' % status)
+        self.assertTrue(status in map(lambda x: int(x), (200, 302, 404, 500)), 'Invalid HTTP status: %s' % status)
 
     def test_rand_res_size(self):
         size = log_generator.rand_res_size()

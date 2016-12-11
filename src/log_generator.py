@@ -13,7 +13,7 @@ from random import randrange
 
 
 def configure_logging(logfile):
-    # Enable fine grained logging
+    # Enable fine grained app logging
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
@@ -37,10 +37,6 @@ def add_log_handler(logger, handler, level, formatter):
 
 
 def generate_event(timestamp, args=None):
-    # Sanity check
-    if hasattr(args, 'url') and args.url:
-        return post_event(timestamp, args)
-
     # Generate a random event
     return {
         'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
@@ -53,8 +49,9 @@ def generate_event(timestamp, args=None):
     }
 
 
-def output_event(timestamp, args):
-    log_event(generate_event(timestamp, args))
+def output_events(events, args):
+    for i in len(events):
+        log_event(events[i])
 
 
 def log_event(event):
@@ -176,6 +173,8 @@ def read_args():
     parser.add_argument('-v', '--volume', help='How many concurrent connections are considered'
                                                ' a legitimate usual load. Default=100',
                         type=int, default=100)
+    parser.add_argument('-m', '--mute', help='Don\'t print logs to the console.',
+                        action='store_true')
     parser.add_argument('-d', '--ddos', help='Trigger a DDoS attack? Default=false',
                         action='store_true', default=False)
     parser.add_argument('-c', '--ddos_conf', help='Defines a DDoS attack in terms of severity, timing '
@@ -244,7 +243,7 @@ def rand_resource():
 
 
 def rand_http_status():
-    return rand_item((200, 302, 404, 500))
+    return int(rand_item((200, 302, 404, 500)))
 
 
 # up until 5MB
@@ -253,18 +252,15 @@ def rand_res_size():
 
 
 def rand_item(custom_list):
-    return str(custom_list[randrange(0, len(custom_list) - 1)]).strip()
+    item = custom_list[randrange(0, len(custom_list) - 1)]
+    return item.replace('\n', '').replace('\r', '') if isinstance(item, basestring) else item
 
 
-def post_event(timestamp, args):
-    event = generate_event(timestamp)
-    json_str = json.dumps(event)
-    logging.debug(json_str)
-    return requests.post(args.url, json=json_str)
-
-
-def send_event(event_handler, *args):
-    event_handler(*args)
+def post_events(events, args):
+    json_str = json.dumps(events)
+    if not args.mute:
+        logging.debug(json_str)
+    return requests.post(args.url, data=json_str, headers={'content-type': 'application/json'})
 
 
 def main():
@@ -277,6 +273,9 @@ def main():
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
+    # Disable verbose logging for the 'requests' library
+    logging.getLogger('requests').setLevel(logging.WARNING)
+
     # Log message format (don't print the level as it is all the same for each of the handlers)
     formatter = logging.Formatter("%(message)s")
 
@@ -287,14 +286,16 @@ def main():
     delay = args.stream / 1000.0
 
     # Resolve event handler
-    event_handler = post_event if args.url else output_event
+    event_handler = post_events if args.url else output_events
 
     # Generate events
     err_count = 0
     while True:
         try:
+            events = []
             for i in range(args.batch_size):
-                send_event(event_handler, datetime.now(), args)
+                events.append(generate_event(datetime.now()))
+            event_handler(events, args)
             time.sleep(delay)
         except KeyboardInterrupt:
             print 'Terminating..'
