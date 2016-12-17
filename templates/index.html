@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Web Stats</title>
+    <link rel="stylesheet" src="{{ url_for('static', filename='js/bower_components/nvd3/build/nv.d3.css') }}">
 </head>
 <body>
-    <div ng-controller="appCtrl">
-        <p>Registered Users: <span ng-bind="userCount"></span></p>
-        <p>New Visitors: <span ng-bind="anonymousCount"></span></p>
-        <p>Errors: <span ng-bind="errCount"></span></p>
-    </div>
+<div ng-controller="appCtrl">
+    <nvd3 options='options' data='data'></nvd3>
+</div>
 </body>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+<script src="{{ url_for('static', filename='components/angular/angular.js') }}"></script>
+<script src="{{ url_for('static', filename='components/d3/d3.js') }}"></script>
+<script src="{{ url_for('static', filename='components/nvd3/build/nv.d3.js') }}"></script>
+<script src="{{ url_for('static', filename='components/angular-nvd3/dist/angular-nvd3.js') }}"></script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </html>

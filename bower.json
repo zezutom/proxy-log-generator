@@ -1,0 +1,28 @@
+{
+  "name": "proxy_log_generator",
+  "authors": [
+    "Tomas Zezula (zezulatomas@gmail.com)"
+  ],
+  "description": "Generates fake proxy logs",
+  "main": "index.html",
+  "moduleType": [],
+  "keywords": [
+    "proxy",
+    "server",
+    "sent",
+    "events"
+  ],
+  "license": "MIT",
+  "homepage": "www.tomaszezula.com",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "static/components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-nvd3": "~1.0.9"
+  }
+}

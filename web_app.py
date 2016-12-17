@@ -1,8 +1,9 @@
 #! /usr/bin/python
-import os
+
+import json
+from time import sleep
 
 import flask
-import json
 from flask import Flask, render_template
 from kafka import KafkaConsumer
 
@@ -32,6 +33,7 @@ def stream_logs():
             'anonymous': True if user == '-' else False,
             'url': log.get('url')
         }
+        sleep(0.5)
         yield "data: {}\n\n".format(json.dumps(event))
 
 
