@@ -49,32 +49,39 @@ angular.module('app', ['nvd3'])
         // Visualised stats about website visits
         $scope.data = currentData();
 
-        // handles the callback from the received event
-        var handleCallback = function (msg) {
-            console.log('A new message has arrived');
-
-            $scope.$apply(function () {
-                var data = JSON.parse(msg.data);
-                if (data['success']) {
-                    if (data['anonymous']) $scope.anonymousCount++;
-                    else $scope.userCount++;
-                } else {
-                    $scope.errCount++;
+        var subscribe = function(topic, callback) {
+            var source = new EventSource('http://localhost:5000/stream/' + topic);
+            source.addEventListener('message', callback, false);
+            source.addEventListener('open', function(e) {
+                console.log('Opening a new connection');
+            }, false);
+            source.addEventListener('error', function(e) {
+                console.log('There was an error!');
+                if (e.readyState == EventSource.CLOSED) {
+                    console.log('Server closed the connection! Terminating..')
+                    source.close();
                 }
+            }, false);
+        };
+
+        subscribe('auth', function(msg) {
+            $scope.$apply(function () {
+                $scope.userCount++;
                 $scope.data = currentData();
             });
-        }
+        });
 
-        var source = new EventSource('http://localhost:5000/stream');
-        source.addEventListener('message', handleCallback, false);
-        source.addEventListener('open', function(e) {
-            console.log('Opening a new connection');
-        }, false);
-        source.addEventListener('error', function(e) {
-            console.log('There was an error!');
-            if (e.readyState == EventSource.CLOSED) {
-                console.log('Server closed the connection! Terminating..')
-                source.close();
-            }
-        }, false);
+        subscribe('anon', function(msg) {
+            $scope.$apply(function () {
+                $scope.anonymousCount++;
+                $scope.data = currentData();
+            });
+        });
+
+        subscribe('err', function(msg) {
+            $scope.$apply(function () {
+                $scope.errCount++;
+                $scope.data = currentData();
+            });
+        });
     });
