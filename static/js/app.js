@@ -46,10 +46,13 @@ angular.module('app', ['nvd3'])
                  }];
         }
 
+        // Visualised stats about website visits
         $scope.data = currentData();
 
         // handles the callback from the received event
         var handleCallback = function (msg) {
+            console.log('A new message has arrived');
+
             $scope.$apply(function () {
                 var data = JSON.parse(msg.data);
                 if (data['success']) {
@@ -62,6 +65,16 @@ angular.module('app', ['nvd3'])
             });
         }
 
-        var source = new EventSource('/stream');
+        var source = new EventSource('http://localhost:5000/stream');
         source.addEventListener('message', handleCallback, false);
+        source.addEventListener('open', function(e) {
+            console.log('Opening a new connection');
+        }, false);
+        source.addEventListener('error', function(e) {
+            console.log('There was an error!');
+            if (e.readyState == EventSource.CLOSED) {
+                console.log('Server closed the connection! Terminating..')
+                source.close();
+            }
+        }, false);
     });
