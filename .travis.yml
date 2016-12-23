@@ -6,9 +6,6 @@ install:
   - pip install coveralls
 
 # run tests with coverage
-script: coverage erase
-script: coverage run src/event_generator_test.py
-script: coverage run src/push_server_test.py
-script: coverage report
+script: coverage run -p src/event_generator_test.py && coverage run -p src/push_server_test.py && coverage combine
 
 after_success: coveralls

@@ -1,7 +1,7 @@
 #! /usr/bin/python
 import re
 import unittest
-from datetime import timedelta, datetime
+from datetime import datetime
 
 import event_generator
 
