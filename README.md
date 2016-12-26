@@ -46,17 +46,18 @@ sh ./log_generator.sh start
 Import a [Streaming Example template](https://github.com/zezutom/NiFiByExample/blob/master/templates/streaming/web_proxy_analysis.xml) to NiFi,
 start all processors.
 
-Next, open up Locust UI at http://localhost:8089 and define how hard to you wish to hit the NiFi listener with generated logs.
+Next, open up Locust UI at [http://localhost:8089](http://localhost:8089) and define how hard to you wish to hit the NiFi listener with generated logs.
 
-TODO - add screenshot
+<img src="docs/01_locust_ui.png" width="670" height="370">
+
 
 Trigger the load and observe the streaming pipeline in NiFi.
 
-TODO - add screenshot
+<img src="docs/02_nifi_load.png" width="670" height="472">
 
-Open up a Dashboard at http://localhost:3000 and observe changing log aggregations.
+Open up a Dashboard at [http://localhost:3000](http://localhost:3000) and observe changing log aggregations.
 
-TODO - add screenshot
+<img src="docs/03_dashboard.png" width="670" height="390">
 
 # Architecture
 TODO

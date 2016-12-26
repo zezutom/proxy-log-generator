@@ -28,11 +28,23 @@ start() {
     # Wait for a few seconds
     sleep 5
 
-    # Start
+    # Start the log generator
     echo "Starting Locust.."
-    locust -f src/nifi_client.py &
+    locust -f src/nifi_client.py --host=http://localhost:8081 &
     LOCUST_PID=$!
     echo "Locust started, pid=$LOCUST_PID, http://localhost:8089"
+
+    # Start the push server
+    echo "Starting push server .."
+    src/push_server.py &
+    PUSH_SERVER_PID=$!
+    echo "Push server started, pid=$PUSH_SERVER_PID, http://localhost:5000"
+
+    # Start the UI
+    echo "Starting dashboard .."
+    ./dashboard.py &
+    CLIENT_PID=$!
+    echo "Dashboard UI started, pid=$CLIENT_PID, http://localhost:3000"
 
     echo "Done"
 }
@@ -44,17 +56,28 @@ stop() {
     sh "$KAFKA_HOME"/bin/zookeeper-server-stop.sh
     echo "Zookeeper stopped"
 
-    LOCUST_PID="$(pgrep -f locust)"
-    if  [[ "$LOCUST_PID" ]]
-    then
-        if ps -p $LOCUST_PID > /dev/null
-        then
-            echo "$LOCUST_PID is running, stopping it.."
-            kill -9 $LOCUST_PID
-        fi
-    fi
+    echo "Stopping Locust.."
+    kill_process "locust"
+    echo "Stopping push server.."
+    kill_process "push_server"
+    echo "Stopping the client (Dashboard UI).."
+    kill_process "dashboard"
+
     return 0
 }
+
+kill_process() {
+    PID="$(pgrep -f $1)"
+    if  [[ "$PID" ]]
+    then
+        if ps -p $PID > /dev/null
+        then
+            echo "$PID is running, stopping it.."
+            kill -9 $PID
+        fi
+    fi
+}
+
 
 main() {
     init
