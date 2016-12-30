@@ -11,19 +11,14 @@ CORS(app)
 app.kafka_service = KafkaService()
 
 
-@app.route('/stream/auth')
-def stream_auth():
-    return stream_events('success_auth_logs')
+@app.route('/stream/success')
+def stream_visits():
+    return stream_events('success_logs')
 
 
-@app.route('/stream/anon')
-def stream_anon():
-    return stream_events('success_anon_logs')
-
-
-@app.route('/stream/err')
+@app.route('/stream/errors')
 def stream_err():
-    return stream_events('err_logs')
+    return stream_events('error_logs')
 
 
 def stream_events(topic):
