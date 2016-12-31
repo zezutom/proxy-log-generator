@@ -6,24 +6,16 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Web Stats</title>
-    <link rel="stylesheet" src="{{ url_for('static', filename='js/bower_components/nvd3/build/nv.d3.css') }}">
+    <link rel="stylesheet" src="{{ url_for('static', filename='components/nvd3/build/nv.d3.css') }}">
+    <script src="{{ url_for('static', filename='components/angular/angular.js') }}"></script>
+    <script src="{{ url_for('static', filename='components/d3/d3.js') }}"></script>
+    <script src="{{ url_for('static', filename='components/nvd3/build/nv.d3.js') }}"></script>
+    <script src="{{ url_for('static', filename='components/angular-nvd3/dist/angular-nvd3.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </head>
-<body>
-<div ng-controller="appCtrl">
-    <div>
-        <nvd3 options='status_code_options' data='status_code_data'></nvd3>
-    </div>
-    <div>
-        <nvd3 options='visit_summary_options' data='visit_summary_data'></nvd3>
-    </div>
-    <div>
-        <nvd3 options='http_ok_trend_options' data='http_ok_trend'></nvd3>
-    </div>
-</div>
+<body ng-controller="appCtrl">
+    <nvd3 options="success_options" data="success_data"></nvd3>
+    <nvd3 options="status_code_options" data="status_code_data"></nvd3>
+    <nvd3 options='visit_summary_options' data='visit_summary_data'></nvd3>
 </body>
-<script src="{{ url_for('static', filename='components/angular/angular.js') }}"></script>
-<script src="{{ url_for('static', filename='components/d3/d3.js') }}"></script>
-<script src="{{ url_for('static', filename='components/nvd3/build/nv.d3.js') }}"></script>
-<script src="{{ url_for('static', filename='components/angular-nvd3/dist/angular-nvd3.js') }}"></script>
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </html>
