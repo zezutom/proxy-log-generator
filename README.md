@@ -57,7 +57,7 @@ Trigger the load and observe the streaming pipeline in NiFi.
 
 Open up a Dashboard at [http://localhost:3000](http://localhost:3000) and observe changing log aggregations.
 
-<img src="docs/03_dashboard.png" width="670" height="390">
+<img src="docs/03_dashboard.png" width="537" height="512">
 
 # Architecture
 TODO
