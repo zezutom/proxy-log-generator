@@ -38,7 +38,7 @@ def rand_url():
 
 
 def rand_http_status():
-    return int(rand_item((200, 302, 404, 500, 502, 503)))
+    return int(rand_item([200, 302, 404, 500, 502, 503]))
 
 
 def rand_user_agent():

@@ -50,19 +50,17 @@ start() {
 }
 
 stop() {
-    echo "Stopping Kafka.."
-    sh "$KAFKA_HOME"/bin/kafka-server-stop.sh
-    echo "Kafka server stopped"
-    sh "$KAFKA_HOME"/bin/zookeeper-server-stop.sh
-    echo "Zookeeper stopped"
-
     echo "Stopping Locust.."
     kill_process "locust"
     echo "Stopping push server.."
     kill_process "push_server"
     echo "Stopping the client (Dashboard UI).."
     kill_process "dashboard"
-
+    echo "Stopping Kafka.."
+    sh "$KAFKA_HOME"/bin/kafka-server-stop.sh
+    echo "Kafka server stopped"
+    sh "$KAFKA_HOME"/bin/zookeeper-server-stop.sh
+    echo "Zookeeper stopped"
     return 0
 }
 

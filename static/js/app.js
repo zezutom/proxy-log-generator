@@ -2,11 +2,25 @@
 angular.module('app', ['nvd3'])
     .controller('appCtrl', function($scope) {
 
+        /** Initialise (reset) counters **/
+        var initCounters = function() {
+            $scope.errors = 0;
+            $scope.successes = 0;
+            $scope.newVisitors = 0;
+            $scope.existingUsers = 0;
+        }
+        initCounters();
+
         /** Success vs Error Breakdown **/
         $scope.status_codes = [];
         $scope.status_code_data = [{ values: [], key: 'HTTP Status Codes'}]
 
         var captureStatusCode = function (data) {
+            if (data.res_status === 200) {
+                $scope.successes++;
+            } else {
+                $scope.errors++;
+            }
             var label = data.res_status + '';
             var status_codes = $scope.status_code_data[0].values;
             isNew = true;
@@ -60,9 +74,7 @@ angular.module('app', ['nvd3'])
         };
 
         /** Successful Response Trend **/
-        $scope.success_data = [{ values: [], key: 'Successful Responses' }];
-        $scope.errors = 0;
-        $scope.successes = 0;
+        $scope.success_data = [];
 
         var captureHttpOkRatio = function() {
             if ($scope.errors === 0 && $scope.successes === 0) {
@@ -71,36 +83,24 @@ angular.module('app', ['nvd3'])
             }
             var total = $scope.successes + $scope.errors;
             var successRatio = $scope.successes / total;
-            $scope.success_data[0].values.push({x: total, y: successRatio});
+            $scope.success_data.push({x: +new Date(), y: successRatio});
         }
 
         // HTTP OK Trend
         $scope.success_options = {
             chart: {
-                type: 'lineChart',
-                height: 180,
-                margin : {
-                    top: 20,
-                    right: 20,
-                    bottom: 40,
-                    left: 55
-                },
-                x: function(d){ return d.x; },
-                y: function(d){ return d.y; },
+                type: 'sparklinePlus',
+                height: 450,
+                x: function(d, i){return i;},
                 yDomain: [0, 1],
-                useInteractiveGuideline: true,
-                duration: 500,
-                yAxis: {
-                    tickFormat: function(d){
-                       return d3.format('.01f')(d);
-                    }
-                }
+                xTickFormat: function(d) {
+                    return d3.time.format('%X')(new Date($scope.success_data[d].x))
+                },
+                duration: 250
             }
         };
 
         /** Visit Summary: new visitors vs registered users **/
-        $scope.newVisitors = 0;
-        $scope.existingUsers = 0;
         $scope.visit_summary_data = [
                 {
                     label: 'New Visitors',
@@ -145,8 +145,8 @@ angular.module('app', ['nvd3'])
 
         /** SSE subscription and event handlers **/
 
-        var subscribe = function(topic, callback) {
-            var source = new EventSource('http://localhost:5000/stream/' + topic);
+        var subscribe = function(callback) {
+            var source = new EventSource('http://localhost:5000/stream');
             source.addEventListener('message', callback, false);
             source.addEventListener('open', function(e) {
                 console.log('Opening a new connection');
@@ -167,17 +167,11 @@ angular.module('app', ['nvd3'])
             captureHttpOkRatio();
         };
 
-        subscribe('errors', function(msg) {
+        subscribe(function(msg) {
             $scope.$apply(function() {
-                $scope.errors++;
                 handleMsg(msg);
             });
         });
 
-        subscribe('success', function(msg) {
-            $scope.$apply(function () {
-                $scope.successes++;
-                handleMsg(msg);
-            });
-        });
+        setInterval(initCounters, 5000)
     });

@@ -1,6 +1,8 @@
 import unittest
+
 from mock import patch
 from push_server import app
+
 
 class PushServerTestCase(unittest.TestCase):
     def setUp(self):
@@ -12,9 +14,7 @@ class PushServerTestCase(unittest.TestCase):
 
     @patch('push_server.app.kafka_service')
     def test_streaming(self, mock_kafka_service):
-        for sub in (
-                {'url': '/stream/success', 'topic': 'success_logs'},
-                {'url': '/stream/errors', 'topic': 'error_logs'}):
+        for sub in [{'url': '/stream', 'topic': 'proxy_logs'}]:
             res = self.app.get(sub['url'])
             assert '200' in res.status
             mock_kafka_service.stream_event.assert_called_with(sub['topic'])

@@ -11,14 +11,9 @@ CORS(app)
 app.kafka_service = KafkaService()
 
 
-@app.route('/stream/success')
-def stream_visits():
-    return stream_events('success_logs')
-
-
-@app.route('/stream/errors')
-def stream_err():
-    return stream_events('error_logs')
+@app.route('/stream')
+def stream_logs():
+    return stream_events('proxy_logs')
 
 
 def stream_events(topic):
@@ -26,4 +21,4 @@ def stream_events(topic):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, threaded=True)
+    app.run(debug=True)

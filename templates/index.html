@@ -1,21 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="app">
+<html ng-app="app">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Web Stats</title>
-    <link rel="stylesheet" src="{{ url_for('static', filename='components/nvd3/build/nv.d3.css') }}">
-    <script src="{{ url_for('static', filename='components/angular/angular.js') }}"></script>
-    <script src="{{ url_for('static', filename='components/d3/d3.js') }}"></script>
-    <script src="{{ url_for('static', filename='components/nvd3/build/nv.d3.js') }}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.css"/>
+    <!--<link rel="stylesheet" src="{{ url_for('static', filename='components/nvd3/build/nv.d3.min.css') }}">-->
+    <link rel="stylesheet" src="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='components/angular/angular.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='components/d3/d3.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='components/nvd3/build/nv.d3.min.js') }}"></script>
     <script src="{{ url_for('static', filename='components/angular-nvd3/dist/angular-nvd3.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </head>
 <body ng-controller="appCtrl">
+    <h3>Successful responses every 5 seconds</h3>
     <nvd3 options="success_options" data="success_data"></nvd3>
+    <h3>Response codes overall breakdown</h3>
     <nvd3 options="status_code_options" data="status_code_data"></nvd3>
+    <h3>Existing users vs new visitors, refreshed every 5 seconds</h3>
     <nvd3 options='visit_summary_options' data='visit_summary_data'></nvd3>
 </body>
 </html>

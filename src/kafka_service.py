@@ -11,7 +11,6 @@ class KafkaService:
     def stream_event(topic):
         for msg in KafkaConsumer(topic):
             # Wait to give a client a chance to react
-            # Randomise the sleep to ensure data variety
             sleep(0.5)
 
             # Stream the new message
