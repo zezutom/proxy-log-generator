@@ -1,6 +1,62 @@
 
 angular.module('app', ['nvd3'])
-    .controller('appCtrl', function($scope) {
+    .controller('appCtrl', function($scope, $http) {
+
+        /** App Config **/
+
+        // Topic subscriptions
+        $scope.serverUrl = 'http://localhost:5000';
+        $scope.clientId = null;
+
+        // Visualisations
+        $scope.visHeight = 300;
+
+        /** Interaction controls **/
+        $scope.run = false;
+        $scope.sse = null;
+
+        $scope.startStop = function() {
+            $scope.run = !$scope.run;
+            console.log($scope.run ? 'Started' : 'Stopped');
+            if ($scope.run) {
+                if (!$scope.clientId) {
+                    console.log('Registering as a new client');
+                    $http.get($scope.serverUrl + '/register')
+                        .then(function(response) {
+                            var data = response.data;
+                            if (data.success) {
+                                $scope.clientId = data.client_id;
+                                console.log('Registration successful, client id: "' + $scope.clientId + '"');
+                                // Subscribe to start streaming
+                                subscribe(function(msg) {
+                                    $scope.$apply(function() {
+                                        handleMsg(msg);
+                                    });
+                                });
+                            } else {
+                                console.error('Registration failed. Try again later.');
+                            }
+                        });
+                } else {
+                    // Subscribe to start streaming
+                    subscribe(function(msg) {
+                        $scope.$apply(function() {
+                            handleMsg(msg);
+                        });
+                    });
+                }
+            } else {
+                // stop streaming
+                $http.get($scope.serverUrl + '/cancel/' + $scope.clientId + '/proxy_logs')
+                    .then(function(response) {
+                        console.log('Going to close the subscription');
+                        if ($scope.sse) {
+                            $scope.sse.close();
+                            console.log('Subscription closed.');
+                        }
+                    });
+            }
+        };
 
         /** Initialise (reset) counters **/
         var initCounters = function() {
@@ -14,6 +70,7 @@ angular.module('app', ['nvd3'])
         /** Success vs Error Breakdown **/
         $scope.status_codes = [];
         $scope.status_code_data = [{ values: [], key: 'HTTP Status Codes'}]
+
 
         var captureStatusCode = function (data) {
             if (data.res_status === 200) {
@@ -53,7 +110,7 @@ angular.module('app', ['nvd3'])
         $scope.status_code_options = {
             chart: {
                 type: 'multiBarHorizontalChart',
-                height: 450,
+                height: $scope.visHeight,
                 margin : {
                     top: 20,
                     right: 20,
@@ -90,7 +147,7 @@ angular.module('app', ['nvd3'])
         $scope.success_options = {
             chart: {
                 type: 'sparklinePlus',
-                height: 450,
+                height: $scope.visHeight,
                 x: function(d, i){return i;},
                 yDomain: [0, 1],
                 xTickFormat: function(d) {
@@ -124,7 +181,7 @@ angular.module('app', ['nvd3'])
         $scope.visit_summary_options = {
             chart: {
                 type: 'pieChart',
-                height: 500,
+                height: $scope.visHeight,
                 x: function(d){return d.label;},
                 y: function(d){return d.value;},
                 showLabels: true,
@@ -146,7 +203,7 @@ angular.module('app', ['nvd3'])
         /** SSE subscription and event handlers **/
 
         var subscribe = function(callback) {
-            var source = new EventSource('http://localhost:5000/stream');
+            var source = new EventSource($scope.serverUrl + '/subscribe/' + $scope.clientId + '/proxy_logs');
             source.addEventListener('message', callback, false);
             source.addEventListener('open', function(e) {
                 console.log('Opening a new connection');
@@ -158,6 +215,8 @@ angular.module('app', ['nvd3'])
                     source.close();
                 }
             }, false);
+            $scope.sse = source;
+            console.log('Successfully subscribed')
         };
 
         var handleMsg = function(msg) {
@@ -167,11 +226,8 @@ angular.module('app', ['nvd3'])
             captureHttpOkRatio();
         };
 
-        subscribe(function(msg) {
-            $scope.$apply(function() {
-                handleMsg(msg);
-            });
-        });
-
-        setInterval(initCounters, 5000)
+        setInterval(function() {
+            if (!$scope.run) return;
+            initCounters();
+        }, 5000);
     });

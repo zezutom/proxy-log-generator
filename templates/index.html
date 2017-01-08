@@ -7,19 +7,55 @@
     <meta http-equiv="Expires" content="0" />
     <title>Web Stats</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='components/nvd3/build/nv.d3.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">-->
     <script src="{{ url_for('static', filename='components/angular/angular.min.js') }}"></script>
     <script src="{{ url_for('static', filename='components/d3/d3.min.js') }}"></script>
     <script src="{{ url_for('static', filename='components/nvd3/build/nv.d3.min.js') }}"></script>
     <script src="{{ url_for('static', filename='components/angular-nvd3/dist/angular-nvd3.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </head>
+<script type="text/javascript">
+(function(){
+     var random=Math.random();
+     var e = document.getElementsByTagName("link")[0];
+     var d = document.createElement("link");
+     d.href = "{{ url_for('static', filename='css/style.css') }}?q=" + random;
+     d.rel = "stylesheet";
+     d.async = true;
+     d.defer = true;
+     e.parentNode.insertBefore(d,e);
+ })();
+</script>
 <body ng-controller="appCtrl">
-    <h3>Successful responses every 5 seconds</h3>
-    <nvd3 options="success_options" data="success_data"></nvd3>
-    <h3>Response codes overall breakdown</h3>
-    <nvd3 options="status_code_options" data="status_code_data"></nvd3>
-    <h3>Existing users vs new visitors, refreshed every 5 seconds</h3>
-    <nvd3 options='visit_summary_options' data='visit_summary_data'></nvd3>
+    <div class="content">
+        <div class="content-top">
+            <button ng-click="startStop()">Start / Stop</button>
+            <div ng-switch on="run">
+                <div ng-switch-when="true">
+                    <div class="panel">
+                        <h3>Successful responses every 5 seconds</h3>
+                        <nvd3 options="success_options" data="success_data"></nvd3>
+                    </div>
+                    <div class="panel">
+                        <h3>Response codes overall breakdown</h3>
+                        <nvd3 options="status_code_options" data="status_code_data"></nvd3>
+                    </div>
+                    <div class="panel">
+                        <h3>Existing users vs new visitors, refreshed every 5 seconds</h3>
+                        <nvd3 options='visit_summary_options' data='visit_summary_data'></nvd3>
+                    </div>
+                </div>
+                <div ng-switch-default>
+                    Press 'Start / Stop' button to see proxy log aggregations
+                </div>
+            </div>
+        </div>
+        <div class="content-left">
+            Admin (nifi, kafka ..)
+        </div>
+        <div class="content-right">
+            Streamed output
+        </div>
+    </div>
 </body>
 </html>
