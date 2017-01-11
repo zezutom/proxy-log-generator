@@ -2,9 +2,8 @@
 import re
 import unittest
 from datetime import datetime
-
 import event_generator
-
+import app_util
 
 class EventGeneratorTestCase(unittest.TestCase):
 
@@ -30,7 +29,7 @@ class EventGeneratorTestCase(unittest.TestCase):
         self.assertIsNotNone(user_agent)
 
         # The generated agent must be one of the available user agents
-        user_agents = map(lambda x: str(x).strip(), event_generator.read_conf('user_agents.txt'))
+        user_agents = map(lambda x: str(x).strip(), app_util.load_data('user_agents.txt'))
         self.assertTrue(user_agent in user_agents, 'Invalid user agent \'%s\'' % user_agent)
 
     def test_rand_auth(self):
@@ -46,8 +45,8 @@ class EventGeneratorTestCase(unittest.TestCase):
 
         # The generated username must match user records
         def f(x): return str(x).strip().lower()
-        fnames = map(f, event_generator.read_conf('fnames.txt'))
-        lnames = map(f, event_generator.read_conf('lnames.txt'))
+        fnames = map(f, app_util.load_data('fnames.txt'))
+        lnames = map(f, app_util.load_data('lnames.txt'))
         self.assertTrue(fname in fnames, 'Invalid first name \'%s\'' % fname)
         self.assertTrue(lname in lnames, 'Invalid last name \'%s\'' % lname)
 

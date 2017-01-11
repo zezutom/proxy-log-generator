@@ -1,6 +1,7 @@
 #! /usr/bin/python
 from locust import HttpLocust, TaskSet, task
 
+import app_util
 import event_generator
 
 
@@ -12,7 +13,9 @@ class UserBehavior(TaskSet):
     @task
     def browse(self):
         # Assumes NiFi's ListenHTTP endpoint
-        self.locust.client.post('/contentListener', json=event_generator.create_event())
+        self.locust.client.post(app_util.read_conf(
+            'LoadTarget', 'endpoint', '/contentListener'),
+            json=event_generator.create_event())
 
 
 class WebsiteUser(HttpLocust):

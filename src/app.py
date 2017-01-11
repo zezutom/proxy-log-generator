@@ -2,7 +2,11 @@
 
 from flask import Flask, render_template
 
+import app_util
+
 app = Flask(__name__)
+app.template_folder = app_util.get_template_folder()
+app.static_folder = app_util.get_static_folder()
 
 
 @app.route('/')

@@ -1,11 +1,14 @@
 #! /usr/bin/python
 
+import uuid
+from time import sleep
+
 import flask
 from flask import Flask
 from flask_cors import CORS
 from pykafka import KafkaClient
-from time import sleep
-import uuid
+
+import app_util
 
 app = Flask(__name__)
 CORS(app)
@@ -91,8 +94,10 @@ def get_encoded(topic):
 
 
 def get_kafka_client():
-    return KafkaClient(hosts='127.0.0.1:9092')
+    return KafkaClient(hosts=app_util.read_conf('Kafka', 'hosts', '127.0.0.1:9092'))
 
 
 if __name__ == '__main__':
-    app.run(debug=True, threaded=True)
+    app.run(debug=True,
+            threaded=True,
+            port=app_util.read_conf('PushServer', 'port', 5000, int))

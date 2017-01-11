@@ -1,8 +1,9 @@
 #! /usr/bin/python
-import os
 import random
 from datetime import datetime
 from random import randrange
+
+import app_util
 
 
 # Generate a random event
@@ -30,8 +31,8 @@ def rand_ip():
 
 def rand_url():
     first = ':'.join(['https' if rand_bool() else 'http', '//www'])
-    fname = rand_item(read_conf('fnames.txt'))
-    lname = rand_item(read_conf('lnames.txt'))
+    fname = rand_item(app_util.load_data('fnames.txt'))
+    lname = rand_item(app_util.load_data('lnames.txt'))
     delimiter = '-' if rand_bool() else ''
     base_url = '.'.join([first, ('%s%s%s' % (fname, delimiter, lname)).lower(), 'com'])
     return ''.join([base_url, rand_resource()])
@@ -42,7 +43,7 @@ def rand_http_status():
 
 
 def rand_user_agent():
-    user_agents = read_conf('user_agents.txt')
+    user_agents = app_util.load_data('user_agents.txt')
     return rand_item(user_agents)
 
 
@@ -51,8 +52,8 @@ def rand_auth(anonymous=False):
     if anonymous:
         return '-'
 
-    fnames = read_conf('fnames.txt')
-    lnames = read_conf('lnames.txt')
+    fnames = app_util.load_data('fnames.txt')
+    lnames = app_util.load_data('lnames.txt')
     return ('.'.join([rand_item(fnames), rand_item(lnames)])).lower()
 
 
@@ -78,7 +79,3 @@ def rand_res_size():
 def rand_bool():
     return bool(random.getrandbits(1))
 
-
-def read_conf(filename):
-    src_dir = os.path.dirname(os.path.abspath(__file__))
-    return open('%s/conf/%s' % ('%s/..' % src_dir, filename), 'r').readlines()
