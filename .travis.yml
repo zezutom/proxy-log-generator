@@ -6,6 +6,6 @@ install:
   - pip install coveralls
 
 # run tests with coverage
-script: coverage run -p src/event_generator_test.py && coverage run -p src/push_server_test.py && coverage combine
+script: coverage run -m unittest discover -s src/test -p '*_test.py' && coverage combine
 
 after_success: coveralls

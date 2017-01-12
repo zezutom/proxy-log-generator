@@ -1,6 +1,7 @@
 import json
 import unittest
-from push_server import app
+
+from src.main.push_server import app
 
 
 class PushServerTestCase(unittest.TestCase):

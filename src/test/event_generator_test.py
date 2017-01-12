@@ -2,8 +2,8 @@
 import re
 import unittest
 from datetime import datetime
-import event_generator
-import app_util
+from src.main import app_util, event_generator
+
 
 class EventGeneratorTestCase(unittest.TestCase):
 

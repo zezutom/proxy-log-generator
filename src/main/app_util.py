@@ -4,7 +4,7 @@ import os
 import sys
 
 # Project root directory
-ROOT_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../')
+ROOT_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../')
 
 # Configuration directory
 CONFIG_DIR = os.path.join(ROOT_DIR, 'conf')
