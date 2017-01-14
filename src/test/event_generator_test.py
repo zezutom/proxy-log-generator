@@ -60,7 +60,7 @@ class EventGeneratorTestCase(unittest.TestCase):
 
     def test_rand_http_status(self):
         status = event_generator.rand_http_status()
-        self.assertTrue(status in map(lambda x: int(x), (200, 302, 404, 500)), 'Invalid HTTP status: %s' % status)
+        self.assertTrue(status in map(lambda x: int(x), (200, 302, 404, 500, 502, 503)), 'Invalid HTTP status: %s' % status)
 
     def test_rand_res_size(self):
         size = event_generator.rand_res_size()

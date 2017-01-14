@@ -39,6 +39,7 @@ def rand_url():
 
 
 def rand_http_status():
+    # TODO capture the list in a constant and use it both here and in unit tests. Applies to other methods too!
     return int(rand_item([200, 302, 404, 500, 502, 503]))
 
 

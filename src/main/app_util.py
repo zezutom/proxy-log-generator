@@ -38,12 +38,12 @@ def read_conf(section, key, default_value=None, type=str):
 
 
 def get_template_folder():
-    return get_resource_dir('template_folder')
+    return __get_resource_dir('template_folder')
 
 
 def get_static_folder():
-    return get_resource_dir('static_folder')
+    return __get_resource_dir('static_folder')
 
 
-def get_resource_dir(name):
+def __get_resource_dir(name):
     return os.path.join(ROOT_DIR, read_conf('App', name))
