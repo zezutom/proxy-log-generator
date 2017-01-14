@@ -6,6 +6,6 @@ install:
   - pip install coveralls
 
 # run tests with coverage
-script: coverage run -m unittest discover -s src/test -p '*_test.py' && coverage combine
+script: coverage run -m unittest discover -s src/test -p '*_test.py'
 
 after_success: coveralls
