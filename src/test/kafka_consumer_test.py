@@ -1,3 +1,4 @@
+#! /usr/bin/python
 import unittest
 import mock
 from src.main.kafka_consumer import KafkaConsumer

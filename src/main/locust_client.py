@@ -12,7 +12,7 @@ class UserBehavior(TaskSet):
 
     @task
     def browse(self):
-        # Assumes NiFi's ListenHTTP endpoint
+        # NiFi's ListenHTTP endpoint is assumed by default
         self.locust.client.post(app_util.read_conf(
             'Locust', 'endpoint', '/contentListener'),
             json=event_generator.create_event())

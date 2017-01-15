@@ -15,4 +15,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=3000)
+    app.run(debug=True, port=app_util.read_conf('App', 'port', 3000, int))
