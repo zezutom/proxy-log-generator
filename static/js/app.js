@@ -6,7 +6,7 @@ angular.module('app', ['nvd3'])
 
         // Topic subscriptions
         $scope.serverUrl = 'http://localhost:5000';
-        $scope.clientId = null;
+        $scope.subscriberId = null;
 
         // Visualisations
         $scope.visHeight = 300;
@@ -19,14 +19,14 @@ angular.module('app', ['nvd3'])
             $scope.run = !$scope.run;
             console.log($scope.run ? 'Started' : 'Stopped');
             if ($scope.run) {
-                if (!$scope.clientId) {
+                if (!$scope.subscriberId) {
                     console.log('Registering as a new client');
                     $http.get($scope.serverUrl + '/register')
                         .then(function(response) {
                             var data = response.data;
                             if (data.success) {
-                                $scope.clientId = data.client_id;
-                                console.log('Registration successful, client id: "' + $scope.clientId + '"');
+                                $scope.subscriberId = data.subscriber_id;
+                                console.log('Registration successful, subscriber id: "' + $scope.subscriberId + '"');
                                 // Subscribe to start streaming
                                 subscribe(function(msg) {
                                     $scope.$apply(function() {
@@ -47,7 +47,7 @@ angular.module('app', ['nvd3'])
                 }
             } else {
                 // stop streaming
-                $http.get($scope.serverUrl + '/cancel/' + $scope.clientId + '/proxy_logs')
+                $http.get($scope.serverUrl + '/unsubscribe/' + $scope.subscriberId + '/proxy_logs')
                     .then(function(response) {
                         console.log('Going to close the subscription');
                         if ($scope.sse) {

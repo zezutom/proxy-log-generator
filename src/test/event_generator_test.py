@@ -60,7 +60,9 @@ class EventGeneratorTestCase(unittest.TestCase):
 
     def test_rand_http_status(self):
         status = event_generator.rand_http_status()
-        self.assertTrue(status in map(lambda x: int(x), (200, 302, 404, 500, 502, 503)), 'Invalid HTTP status: %s' % status)
+        self.assertTrue(status in map(lambda x: int(x),
+                                      (200, 302, 404, 500, 502, 503)),
+                        'Invalid HTTP status: %s' % status)
 
     def test_rand_res_size(self):
         size = event_generator.rand_res_size()
@@ -73,12 +75,6 @@ class EventGeneratorTestCase(unittest.TestCase):
         self.assertEquals(timestamp.strftime('%Y-%m-%d %H:%M:%S'), event['timestamp'])
         for p in ['ip', 'user_agent', 'authenticated', 'url', 'res_status', 'res_size']:
             self.assertIsNotNone(event[p])
-
-
-def parse_duration(expression):
-    args = event_generator.read_args()
-    args.time = expression
-    return event_generator.parse_duration(args)
 
 
 if __name__ == '__main__':
