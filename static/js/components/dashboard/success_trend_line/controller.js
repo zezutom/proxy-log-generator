@@ -6,7 +6,7 @@ app.controller('SuccessTrendLineCtrl', ['$scope', function($scope) {
             x: function(d, i){return i;},
             yDomain: [0, 1],
             xTickFormat: function(d) {
-                return d3.time.format('%X')(new Date($scope.trendOfSuccessfulResponses[d].x))
+                return d3.time.format('%X')(new Date($scope.successfulResponseTrendGraphData[d].x))
             },
             duration: 250
         }

@@ -5,8 +5,7 @@ app.directive('visitSummaryPieChart', function() {
     controllerAs: 'ctrl',
     templateUrl: '/visit/summary',
     bindToController: {
-        visHeight: '=',
-        trendOfSuccessfulResponses: '='
+        visHeight: '='
     }
   };
 });

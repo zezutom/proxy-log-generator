@@ -1,72 +1,24 @@
 var app = angular.module('app', ['nvd3']);
 app
-    .controller('AppCtrl', ['$scope', 'appService', 'subscriberService',
-    function($scope, appService, subscriberService) {
+    .controller('AppCtrl', ['$scope', 'subscriberService', 'dashboardService',
+    function($scope, subscriberService, dashboardService) {
 
         /** Shared state **/
         $scope.run = false;
         $scope.visHeight = 250;
 
-        /** Initialise (reset) counters **/
-        var initCounters = function() {
-            $scope.errors = 0;
-            $scope.successes = 0;
-            $scope.newVisitors = 0;
-            $scope.existingUsers = 0;
-        }
-        initCounters();
+        /** Dashboard Visualisations **/
+        $scope.successfulResponseTrendGraphData = dashboardService.getSuccessfulResponseTrendGraphData();
+        $scope.statusCodeGraphData = dashboardService.getStatusCodeGraphData();
+        $scope.visitSummaryGraphData = dashboardService.getVisitSummaryGraphData();
 
-        // Successful Response Trend
-        $scope.trendOfSuccessfulResponses = [];
-
-        // Success vs Error Breakdown
-        $scope.statusCodes = [];
-        $scope.statusCodeData = [{ values: [], key: 'HTTP Status Codes'}]
-
-        // Visit Summary: new visitors vs registered users
-        $scope.visitSummaryData = [
-            {
-                label: 'New Visitors',
-                value: $scope.newVisitors
-             },
-             {
-                label: 'Existing Users',
-                value: $scope.existingUsers
-             }
-        ];
         /** Internal state **/
         var subscriberId = null;
-
-        var updateTrendOfSuccessfulResponses = function() {
-            var successRatio = appService.calculateRatio($scope.successes, $scope.errors);
-            $scope.trendOfSuccessfulResponses.push(successRatio);
-        };
-
-        var captureVisits = function() {
-            $scope.visitSummaryData[0].value = $scope.newVisitors;
-            $scope.visitSummaryData[1].value = $scope.existingUsers;
-        };
-
-        var handleMsg = function(msg) {
-            if (appService.isSuccess(msg)) {
-                $scope.successes++;
-            } else {
-                $scope.errors++;
-            }
-            if (appService.isAuthenticated(msg)) {
-                $scope.existingUsers++;
-            } else {
-                $scope.newVisitors++;
-            }
-            updateTrendOfSuccessfulResponses();
-            captureVisits();
-            $scope.statusCodes = appService.updateStatusCodes(msg, $scope.statusCodeData[0].values);
-        };
 
         var subscribe = function() {
             subscriberService.subscribe(subscriberId, function(msg) {
                 $scope.$apply(function() {
-                    handleMsg(msg);
+                    dashboardService.parseMessage(msg);
                 });
             });
         };
@@ -102,12 +54,12 @@ app
         // Reset counters every 5 seconds to make the output more dynamic
         setInterval(function() {
             if (!$scope.run) return;
-            initCounters();
+            dashboardService.init();
         }, 5000);
     }])
     .factory('subscriberService', ['$http', function($http) {
         return new SubscriberService($http);
     }])
-    .factory('appService', function() {
-        return new AppService();
+    .factory('dashboardService', function() {
+        return new DashboardService();
     });

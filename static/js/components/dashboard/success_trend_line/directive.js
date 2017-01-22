@@ -6,7 +6,7 @@ app.directive('successTrendLine', function() {
     templateUrl: '/success/trend',
     bindToController: {
         visHeight: '=',
-        trendOfSuccessfulResponses: '='
+        successfulResponseTrendGraphData: '='
     }
   };
 });
