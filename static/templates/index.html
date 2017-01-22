@@ -7,12 +7,20 @@
     <meta http-equiv="Expires" content="0" />
     <title>Web Stats</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='components/nvd3/build/nv.d3.min.css') }}">
-    <!--<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">-->
     <script src="{{ url_for('static', filename='components/angular/angular.min.js') }}"></script>
     <script src="{{ url_for('static', filename='components/d3/d3.min.js') }}"></script>
     <script src="{{ url_for('static', filename='components/nvd3/build/nv.d3.min.js') }}"></script>
     <script src="{{ url_for('static', filename='components/angular-nvd3/dist/angular-nvd3.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/services/app_service.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/services/subscriber_service.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/dashboard/success_trend_line/controller.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/dashboard/success_trend_line/directive.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/dashboard/status_codes/controller.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/dashboard/status_codes/directive.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/dashboard/visits/controller.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/dashboard/visits/directive.js') }}"></script>
+
 </head>
 <script type="text/javascript">
 (function(){
@@ -26,24 +34,15 @@
      e.parentNode.insertBefore(d,e);
  })();
 </script>
-<body ng-controller="appCtrl">
+<body ng-controller="AppCtrl">
     <div class="content">
         <div class="content-top">
             <button ng-click="startStop()">Start / Stop</button>
             <div ng-switch on="run">
                 <div ng-switch-when="true">
-                    <div class="panel">
-                        <h3>Successful responses every 5 seconds</h3>
-                        <nvd3 options="success_options" data="success_data"></nvd3>
-                    </div>
-                    <div class="panel">
-                        <h3>Response codes overall breakdown</h3>
-                        <nvd3 options="status_code_options" data="status_code_data"></nvd3>
-                    </div>
-                    <div class="panel">
-                        <h3>Existing users vs new visitors, refreshed every 5 seconds</h3>
-                        <nvd3 options='visit_summary_options' data='visit_summary_data'></nvd3>
-                    </div>
+                    <success-trend-line></success-trend-line>
+                    <status-codes-bar-chart></status-codes-bar-chart>
+                    <visit-summary-pie-chart></visit-summary-pie-chart>
                 </div>
                 <div ng-switch-default>
                     Press 'Start / Stop' button to see proxy log aggregations
