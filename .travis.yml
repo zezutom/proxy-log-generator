@@ -21,5 +21,4 @@ script:
 
 after_success:
 - karma stop
-- cat coverage/*/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 - coveralls
