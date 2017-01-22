@@ -5,7 +5,20 @@ install:
   - pip install -r requirements.txt
   - pip install coveralls
 
-# run tests with coverage
-script: coverage run -m unittest discover -s src/test -p '*_test.py'
+before_script:
+- npm install karma
+- npm install karma-jasmine
+- npm install jasmine-core
+- npm install karma-chrome-launcher
+- npm install karma-coverage
+- npm install karma-coveralls
+- npm install karma-cli
 
-after_success: coveralls
+# run tests with coverage
+script:
+- coverage run -m unittest discover -s src/test -p '*_test.py'
+- karma start conf/karma.conf.js &
+
+after_success:
+- karma stop
+- coveralls

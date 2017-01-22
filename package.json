@@ -1,0 +1,26 @@
+{
+  "name": "proxy_log_generator",
+  "version": "1.0.0",
+  "description": "Load tester and fake proxy log generator.",
+  "main": "karma.conf.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "karma start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "personal:zezutom/proxy-log-generator.git"
+  },
+  "author": "Tomas Zezula (zezulatomas@gmail.com)",
+  "license": "MIT",
+  "devDependencies": {
+    "jasmine-core": "^2.5.2",
+    "karma": "^1.4.0",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-coverage": "^1.1.1",
+    "karma-coveralls": "^1.1.2",
+    "karma-jasmine": "^1.1.0"
+  }
+}

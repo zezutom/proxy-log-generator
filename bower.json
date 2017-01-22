@@ -16,13 +16,9 @@
   "homepage": "www.tomaszezula.com",
   "private": true,
   "ignore": [
-    "**/.*",
-    "node_modules",
-    "static/components",
-    "test",
-    "tests"
   ],
   "dependencies": {
-    "angular-nvd3": "~1.0.9"
+    "angular-nvd3": "~1.0.9",
+    "angular-mocks": "~1.6.1"
   }
 }
